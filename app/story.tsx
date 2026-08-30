@@ -317,6 +317,39 @@ function NeonStack({ label, value, palette }: { label: string; value: number; pa
   );
 }
 
+function DensityGlowDefs({ id }: { id: string }) {
+  return (
+    <svg className="density-filter-defs" aria-hidden="true" width="0" height="0" focusable="false">
+      <defs>
+        <filter id={id} x="-34%" y="-220%" width="168%" height="540%" colorInterpolationFilters="sRGB">
+          <feGaussianBlur stdDeviation="1.9" />
+        </filter>
+      </defs>
+    </svg>
+  );
+}
+
+function DensityCapsule({
+  palette,
+  index,
+  glowId,
+}: {
+  palette: DensityPalette;
+  index: number;
+  glowId: string;
+}) {
+  return (
+    <i className="svg-density-mark" style={densityVars(palette, index)} aria-hidden="true">
+      <svg viewBox="0 0 100 6" preserveAspectRatio="none">
+        <rect className="density-shell" x="1" y="0.95" width="98" height="4.1" rx="2.05" />
+        <rect className="density-aura" x="4" y="1.2" width="92" height="3.6" rx="1.8" filter={`url(#${glowId})`} />
+        <rect className="density-body" x="6" y="1.55" width="88" height="2.9" rx="1.45" />
+        <rect className="density-hot-core" x="30" y="2.2" width="40" height="1.25" rx="0.625" />
+      </svg>
+    </i>
+  );
+}
+
 function DistributionVisual() {
   const bins = Array.from({ length: 9 }, (_, index) => index + 1);
   const { ref, isVisible } = useInViewReplay<HTMLDivElement>();
@@ -326,6 +359,7 @@ function DistributionVisual() {
         <div><p className="viz-kicker">Three basic psychological needs</p><h3>A positive pattern across all three needs</h3></div>
         <span className="scale-pill">1 not at all · 9 fully supported</span>
       </div>
+      <DensityGlowDefs id="distribution-density-glow" />
       <div className="distribution-chart" role="img" aria-label="Participant score distributions for autonomy, competence and relatedness">
         <div className="bin-header"><span />{bins.map((bin) => <b key={bin}>{bin}</b>)}</div>
         {dimensions.map((dimension) => (
@@ -335,7 +369,14 @@ function DistributionVisual() {
               const count = data.scoreDistribution[dimension.key][String(bin)];
               return <div className="bar-cell" key={bin} title={`${dimension.label}: ${count} participants scored ${bin}`}>
                 <div className="bar-stack" aria-hidden="true">
-                  {Array.from({ length: count }, (_, index) => <i key={index} style={densityVars(DENSITY.greenDark, index)} />)}
+                  {Array.from({ length: count }, (_, index) => (
+                    <DensityCapsule
+                      key={index}
+                      palette={DENSITY.greenDark}
+                      index={index}
+                      glowId="distribution-density-glow"
+                    />
+                  ))}
                 </div>
                 {count > 0 && <span className="bar-count" aria-hidden="true">{count}</span>}
               </div>;
@@ -361,11 +402,19 @@ function RatingVisual() {
         <span className="scale-pill rating">Observed 0–10 scale</span>
       </div>
       <div className="rating-summary"><strong>10</strong><span>is the most common rounded participant average</span></div>
+      <DensityGlowDefs id="rating-density-glow" />
       <div className="rating-chart" role="img" aria-label="Distribution of participant overall session ratings">
         {bins.map((bin) => (
           <div className="rating-column" key={bin}>
             <div className="rating-marks">
-              {Array.from({ length: data.ratingDistribution[String(bin)] }, (_, index) => <i key={index} style={densityVars(DENSITY.redDark, index)} />)}
+              {Array.from({ length: data.ratingDistribution[String(bin)] }, (_, index) => (
+                <DensityCapsule
+                  key={index}
+                  palette={DENSITY.redDark}
+                  index={index}
+                  glowId="rating-density-glow"
+                />
+              ))}
             </div>
             <strong>{bin}</strong>
             <span className="rating-count">{data.ratingDistribution[String(bin)]} participants</span>
