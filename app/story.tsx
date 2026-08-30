@@ -372,7 +372,7 @@ function RatingVisual() {
           </div>
         ))}
       </div>
-      <p className="viz-note">1 capsule = 1 participant. Overall ratings were available for 30 of the 35 participants. Their rounded averages range from 7 to 10, with 10 the most common.</p>
+      <p className="viz-note">Overall ratings were available for 30 of the 35 participants. Their rounded averages range from 7 to 10, with 10 the most common.</p>
     </div>
   );
 }

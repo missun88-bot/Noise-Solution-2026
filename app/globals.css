@@ -417,11 +417,11 @@ button { color: inherit; }
   filter: brightness(1.035) saturate(1.07);
 }
 .neon-marks i { height: 6px; }
-.bar-stack i,
-.rating-marks i {
+.bar-stack i {
   height: 6px;
   flex: 0 0 6px;
 }
+.rating-marks i { height: 6px; }
 .neon-marks i::before,
 .bar-cell i::before,
 .rating-marks i::before {
@@ -483,7 +483,7 @@ button { color: inherit; }
   width: 100%;
   margin-top: 3px;
   color: #91a6b5;
-  font-size: .7rem;
+  font-size: .805rem;
   font-weight: 500;
   line-height: 1;
   text-align: center;
@@ -498,12 +498,12 @@ button { color: inherit; }
 .rating-summary span { max-width: 240px; color: #bac4cb; font-size: .84rem; }
 .rating-chart { flex: 1; min-height: 300px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; align-items: end; padding: 1.5rem 1rem 0; }
 .rating-column { display: flex; flex-direction: column; align-items: center; }
-.rating-marks { width: 100%; height: 280px; display: flex; flex-direction: column-reverse; gap: 2px; }
+.rating-marks { width: 100%; height: 280px; display: flex; flex-direction: column-reverse; gap: 5px; }
 .rating-column > strong { margin-top: .8rem; color: #f2efeb; font-size: 1rem; }
 .rating-count {
-  margin-top: .25rem;
+  margin-top: .2rem;
   color: #91a6b5;
-  font-size: .7rem;
+  font-size: .805rem;
   font-weight: 500;
   line-height: 1.15;
 }
@@ -734,10 +734,10 @@ a.partner-card:hover, a.partner-card:focus-visible { background: #11160f; outlin
   .distribution-row { min-height: 105px; }
   .bar-cell { height: 98px; grid-template-rows: 84px 14px; }
   .bar-stack { height: 84px; gap: 1.5px; }
-  .bar-stack i,
-  .rating-marks i { height: 4px; flex-basis: 4px; }
-  .bar-count { margin-top: 2px; font-size: .62rem; }
-  .rating-marks { height: 150px; gap: 2px; }
+  .bar-stack i { height: 4px; flex-basis: 4px; }
+  .bar-count { margin-top: 2px; font-size: .713rem; }
+  .rating-marks { height: 150px; gap: 3px; }
+  .rating-count { font-size: .713rem; }
   .profile-grid { grid-template-columns: repeat(7, 1fr); }
   .circle-teach { grid-template-columns: .8fr 1fr; }
   .cloud-stage { min-height: 270px; }
@@ -774,7 +774,7 @@ a.partner-card:hover, a.partner-card:focus-visible { background: #11160f; outlin
   .rating-summary strong { font-size: 2.2rem; }
   .rating-chart { min-height: 210px; gap: .45rem; padding-inline: .2rem; }
   .rating-marks { height: 145px; }
-  .rating-count { display: block; font-size: .64rem; }
+  .rating-count { display: none; }
   .circle-teach { grid-template-columns: .7fr 1fr; gap: .8rem; }
   .circle-teach-copy ul { gap: .45rem; margin: .8rem 0; }
   .circle-teach-copy li { font-size: .62rem; }
