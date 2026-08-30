@@ -335,6 +335,7 @@ function DistributionVisual() {
               const count = data.scoreDistribution[dimension.key][String(bin)];
               return <div className="bar-cell" key={bin} title={`${dimension.label}: ${count} participants scored ${bin}`}>
                 {Array.from({ length: count }, (_, index) => <i key={index} style={densityVars(DENSITY.greenDark, index)} />)}
+                {count > 0 && <span className="bar-count" aria-hidden="true">{count}</span>}
               </div>;
             })}
           </div>
@@ -343,7 +344,7 @@ function DistributionVisual() {
       <div className="dimension-key">
         {dimensions.map((item) => <span key={item.key}><i style={{ background: DENSITY.greenDark.mid, boxShadow: `0 0 6px ${DENSITY.greenDark.mid}` }} />{item.label}</span>)}
       </div>
-      <p className="viz-note">Most participant averages sit between 5 and 7 on the 1–9 scale. Competence is strongest overall; relatedness varies most.</p>
+      <p className="viz-note">1 capsule = 1 participant. Most participant averages sit between 5 and 7 on the 1–9 scale. Competence is strongest overall; relatedness varies most.</p>
     </div>
   );
 }
@@ -359,17 +360,20 @@ function RatingVisual() {
       </div>
       <div className="rating-summary"><strong>10</strong><span>is the most common rounded participant average</span></div>
       <div className="rating-chart" role="img" aria-label="Distribution of participant overall session ratings">
-        {bins.map((bin) => (
-          <div className="rating-column" key={bin}>
-            <div className="rating-marks">
-              {Array.from({ length: data.ratingDistribution[String(bin)] }, (_, index) => <i key={index} style={densityVars(DENSITY.redDark, index)} />)}
+        {bins.map((bin) => {
+          const count = data.ratingDistribution[String(bin)];
+          return (
+            <div className="rating-column" key={bin}>
+              <div className="rating-marks" title={`${count} participants rated ${bin}`}>
+                {Array.from({ length: count }, (_, index) => <i key={index} style={densityVars(DENSITY.redDark, index)} />)}
+              </div>
+              <strong>{bin}</strong>
+              <span className="rating-count">{count} participants</span>
             </div>
-            <strong>{bin}</strong>
-            <span>{data.ratingDistribution[String(bin)]} participants</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
-      <p className="viz-note">Overall ratings were available for 30 of the 35 participants. Their rounded averages range from 7 to 10, with 10 the most common.</p>
+      <p className="viz-note">1 capsule = 1 participant. Overall ratings were available for 30 of the 35 participants. Their rounded averages range from 7 to 10, with 10 the most common.</p>
     </div>
   );
 }
