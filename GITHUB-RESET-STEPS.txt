@@ -1,0 +1,21 @@
+SOUND OF PROGRESS — CLEAN GITHUB RESET
+
+This v2 package fixes the deployment problem in the earlier package.
+The earlier workflow used npm caching without a package-lock.json, so GitHub Actions stopped before the site could build.
+This workflow DOES NOT require a lock file.
+
+RECOMMENDED CLEAN RESET:
+1. In the existing Sound-of-Progress repo, delete the old source files OR create a fresh repository.
+2. Upload the CONTENTS of this package, preserving folders.
+3. For the hidden .github folder, either:
+   - upload it if your browser accepts it, OR
+   - open Actions > New workflow > Set up a workflow yourself, and paste the contents of .github/workflows/deploy-pages.yml.
+4. Settings > Pages > Source = GitHub Actions.
+5. Actions > Deploy to GitHub Pages.
+6. Wait for BOTH build and deploy to turn green.
+7. Open https://missun88-bot.github.io/Sound-of-Progress/
+
+IMPORTANT:
+- A plain "pages build and deployment" run is NOT enough for this React/Vite source project.
+- The workflow named "Deploy to GitHub Pages" must succeed.
+- Do not serve index.html directly from the branch; main.tsx must be compiled by Vite first.
