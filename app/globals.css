@@ -811,8 +811,9 @@ a.partner-card:hover, a.partner-card:focus-visible { background: #11160f; outlin
 }
 
 
-/* Staging experiment only: SVG-rendered neon capsules for the two main charts.
-   Scope intentionally limited to distribution/rating chart capsules. */
+/* Staging-only experiment: Toan-inspired density effect for the two main charts only.
+   Goal: cleaner Tableau-density look with restrained glow and crisp core.
+   Scope lock: do not affect demographic bars or other page elements. */
 .density-filter-defs {
   position: absolute;
   width: 0;
@@ -838,19 +839,20 @@ a.partner-card:hover, a.partner-card:focus-visible { background: #11160f; outlin
   height: 100%;
   overflow: visible;
 }
+
 .svg-density-mark .density-shell {
   fill: var(--density-low);
-  opacity: .84;
+  opacity: .78;
 }
 .svg-density-mark .density-aura {
   fill: var(--density-mid);
-  opacity: .34;
+  opacity: .24;
 }
 .svg-density-mark .density-body {
   fill: var(--density-mid);
-  opacity: .96;
+  opacity: .98;
 }
-.svg-density-mark .density-hot-core {
+.svg-density-mark .density-core {
   fill: var(--density-hot);
-  opacity: .36;
+  opacity: .18;
 }

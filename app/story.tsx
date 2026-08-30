@@ -321,8 +321,8 @@ function DensityGlowDefs({ id }: { id: string }) {
   return (
     <svg className="density-filter-defs" aria-hidden="true" width="0" height="0" focusable="false">
       <defs>
-        <filter id={id} x="-34%" y="-220%" width="168%" height="540%" colorInterpolationFilters="sRGB">
-          <feGaussianBlur stdDeviation="1.9" />
+        <filter id={id} x="-28%" y="-180%" width="156%" height="460%" colorInterpolationFilters="sRGB">
+          <feGaussianBlur stdDeviation="1.45" />
         </filter>
       </defs>
     </svg>
@@ -341,10 +341,10 @@ function DensityCapsule({
   return (
     <i className="svg-density-mark" style={densityVars(palette, index)} aria-hidden="true">
       <svg viewBox="0 0 100 6" preserveAspectRatio="none">
-        <rect className="density-shell" x="1" y="0.95" width="98" height="4.1" rx="2.05" />
-        <rect className="density-aura" x="4" y="1.2" width="92" height="3.6" rx="1.8" filter={`url(#${glowId})`} />
-        <rect className="density-body" x="6" y="1.55" width="88" height="2.9" rx="1.45" />
-        <rect className="density-hot-core" x="30" y="2.2" width="40" height="1.25" rx="0.625" />
+        <rect className="density-shell" x="1.8" y="1.0" width="96.4" height="4.0" rx="2.0" />
+        <rect className="density-aura" x="4.8" y="1.35" width="90.4" height="3.3" rx="1.65" filter={`url(#${glowId})`} />
+        <rect className="density-body" x="5.2" y="1.55" width="89.6" height="2.9" rx="1.45" />
+        <rect className="density-core" x="20" y="2.22" width="60" height="1.08" rx="0.54" />
       </svg>
     </i>
   );
