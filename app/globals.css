@@ -812,8 +812,7 @@ a.partner-card:hover, a.partner-card:focus-visible { background: #11160f; outlin
 
 
 /* Staging-only experiment: Toan-inspired density effect for the two main charts only.
-   Goal: cleaner Tableau-density look with restrained glow and crisp core.
-   Scope lock: do not affect demographic bars or other page elements. */
+   Scope lock: only the main green and red capsules are changed. */
 .density-filter-defs {
   position: absolute;
   width: 0;
@@ -839,6 +838,14 @@ a.partner-card:hover, a.partner-card:focus-visible { background: #11160f; outlin
   height: 100%;
   overflow: visible;
 }
+.distribution-chart .svg-density-mark {
+  height: 6px !important;
+  flex: 0 0 6px;
+}
+.rating-chart .svg-density-mark {
+  height: 8px !important;
+  flex: 0 0 8px;
+}
 
 .svg-density-mark .density-shell {
   fill: var(--density-low);
@@ -846,13 +853,30 @@ a.partner-card:hover, a.partner-card:focus-visible { background: #11160f; outlin
 }
 .svg-density-mark .density-aura {
   fill: var(--density-mid);
-  opacity: .24;
 }
 .svg-density-mark .density-body {
   fill: var(--density-mid);
-  opacity: .98;
 }
 .svg-density-mark .density-core {
-  fill: var(--density-hot);
-  opacity: .18;
+  fill: color-mix(in srgb, white 28%, var(--density-hot) 72%);
+}
+
+.distribution-chart .svg-density-mark .distribution-aura {
+  opacity: .34;
+}
+.distribution-chart .svg-density-mark .distribution-body {
+  opacity: .98;
+}
+.distribution-chart .svg-density-mark .distribution-core {
+  opacity: .50;
+}
+
+.rating-chart .svg-density-mark .rating-aura {
+  opacity: .38;
+}
+.rating-chart .svg-density-mark .rating-body {
+  opacity: .98;
+}
+.rating-chart .svg-density-mark .rating-core {
+  opacity: .64;
 }

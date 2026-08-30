@@ -317,12 +317,12 @@ function NeonStack({ label, value, palette }: { label: string; value: number; pa
   );
 }
 
-function DensityGlowDefs({ id }: { id: string }) {
+function DensityGlowDefs({ id, blur = 1.5 }: { id: string; blur?: number }) {
   return (
     <svg className="density-filter-defs" aria-hidden="true" width="0" height="0" focusable="false">
       <defs>
         <filter id={id} x="-28%" y="-180%" width="156%" height="460%" colorInterpolationFilters="sRGB">
-          <feGaussianBlur stdDeviation="1.45" />
+          <feGaussianBlur stdDeviation={blur} />
         </filter>
       </defs>
     </svg>
@@ -333,18 +333,36 @@ function DensityCapsule({
   palette,
   index,
   glowId,
+  variant,
 }: {
   palette: DensityPalette;
   index: number;
   glowId: string;
+  variant: "distribution" | "rating";
 }) {
+  const isRating = variant === "rating";
   return (
-    <i className="svg-density-mark" style={densityVars(palette, index)} aria-hidden="true">
-      <svg viewBox="0 0 100 6" preserveAspectRatio="none">
-        <rect className="density-shell" x="1.8" y="1.0" width="96.4" height="4.0" rx="2.0" />
-        <rect className="density-aura" x="4.8" y="1.35" width="90.4" height="3.3" rx="1.65" filter={`url(#${glowId})`} />
-        <rect className="density-body" x="5.2" y="1.55" width="89.6" height="2.9" rx="1.45" />
-        <rect className="density-core" x="20" y="2.22" width="60" height="1.08" rx="0.54" />
+    <i
+      className={`svg-density-mark ${isRating ? "is-rating" : "is-distribution"}`}
+      style={densityVars(palette, index)}
+      aria-hidden="true"
+    >
+      <svg viewBox={isRating ? "0 0 100 8" : "0 0 100 6"} preserveAspectRatio="none">
+        {isRating ? (
+          <>
+            <rect className="density-shell" x="1.6" y="1.15" width="96.8" height="5.7" rx="2.85" />
+            <rect className="density-aura rating-aura" x="3.8" y="1.45" width="92.4" height="5.1" rx="2.55" filter={`url(#${glowId})`} />
+            <rect className="density-body rating-body" x="4.5" y="1.7" width="91" height="4.6" rx="2.3" />
+            <rect className="density-core rating-core" x="23" y="2.7" width="54" height="2.0" rx="1.0" />
+          </>
+        ) : (
+          <>
+            <rect className="density-shell" x="1.8" y="1.0" width="96.4" height="4.0" rx="2.0" />
+            <rect className="density-aura distribution-aura" x="4.6" y="1.3" width="90.8" height="3.4" rx="1.7" filter={`url(#${glowId})`} />
+            <rect className="density-body distribution-body" x="5.1" y="1.55" width="89.8" height="2.9" rx="1.45" />
+            <rect className="density-core distribution-core" x="22" y="2.16" width="56" height="1.14" rx="0.57" />
+          </>
+        )}
       </svg>
     </i>
   );
@@ -359,7 +377,7 @@ function DistributionVisual() {
         <div><p className="viz-kicker">Three basic psychological needs</p><h3>A positive pattern across all three needs</h3></div>
         <span className="scale-pill">1 not at all · 9 fully supported</span>
       </div>
-      <DensityGlowDefs id="distribution-density-glow" />
+      <DensityGlowDefs id="distribution-density-glow" blur={1.55} />
       <div className="distribution-chart" role="img" aria-label="Participant score distributions for autonomy, competence and relatedness">
         <div className="bin-header"><span />{bins.map((bin) => <b key={bin}>{bin}</b>)}</div>
         {dimensions.map((dimension) => (
@@ -375,6 +393,7 @@ function DistributionVisual() {
                       palette={DENSITY.greenDark}
                       index={index}
                       glowId="distribution-density-glow"
+                      variant="distribution"
                     />
                   ))}
                 </div>
@@ -402,7 +421,7 @@ function RatingVisual() {
         <span className="scale-pill rating">Observed 0–10 scale</span>
       </div>
       <div className="rating-summary"><strong>10</strong><span>is the most common rounded participant average</span></div>
-      <DensityGlowDefs id="rating-density-glow" />
+      <DensityGlowDefs id="rating-density-glow" blur={1.95} />
       <div className="rating-chart" role="img" aria-label="Distribution of participant overall session ratings">
         {bins.map((bin) => (
           <div className="rating-column" key={bin}>
@@ -413,6 +432,7 @@ function RatingVisual() {
                   palette={DENSITY.redDark}
                   index={index}
                   glowId="rating-density-glow"
+                  variant="rating"
                 />
               ))}
             </div>
