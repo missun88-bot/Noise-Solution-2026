@@ -334,7 +334,10 @@ function DistributionVisual() {
             {bins.map((bin) => {
               const count = data.scoreDistribution[dimension.key][String(bin)];
               return <div className="bar-cell" key={bin} title={`${dimension.label}: ${count} participants scored ${bin}`}>
-                {Array.from({ length: count }, (_, index) => <i key={index} style={densityVars(DENSITY.greenDark, index)} />)}
+                <div className="bar-stack" aria-hidden="true">
+                  {Array.from({ length: count }, (_, index) => <i key={index} style={densityVars(DENSITY.greenDark, index)} />)}
+                </div>
+                {count > 0 && <span className="bar-count" aria-hidden="true">{count}</span>}
               </div>;
             })}
           </div>
@@ -343,7 +346,7 @@ function DistributionVisual() {
       <div className="dimension-key">
         {dimensions.map((item) => <span key={item.key}><i style={{ background: DENSITY.greenDark.mid, boxShadow: `0 0 6px ${DENSITY.greenDark.mid}` }} />{item.label}</span>)}
       </div>
-      <p className="viz-note">Most participant averages sit between 5 and 7 on the 1–9 scale. Competence is strongest overall; relatedness varies most.</p>
+      <p className="viz-note">1 capsule = 1 participant. Most participant averages sit between 5 and 7 on the 1–9 scale. Competence is strongest overall; relatedness varies most.</p>
     </div>
   );
 }
@@ -365,7 +368,7 @@ function RatingVisual() {
               {Array.from({ length: data.ratingDistribution[String(bin)] }, (_, index) => <i key={index} style={densityVars(DENSITY.redDark, index)} />)}
             </div>
             <strong>{bin}</strong>
-            <span>{data.ratingDistribution[String(bin)]} participants</span>
+            <span className="rating-count">{data.ratingDistribution[String(bin)]} participants</span>
           </div>
         ))}
       </div>
@@ -603,84 +606,54 @@ function FilterSelect({ label, value, options, onChange }: { label: string; valu
   );
 }
 
-const pageQuoteChoices = new Map<string, number>();
-
-function quotationForThisVisit(quotes: string[], word: string, sentiment: Sentiment): string | undefined {
-  if (!quotes.length) return undefined;
-  if (quotes.length === 1) return quotes[0];
-
-  const quoteKey = `${word}|${sentiment}`;
-  const pageChoice = pageQuoteChoices.get(quoteKey);
-  if (pageChoice !== undefined) return quotes[pageChoice];
-
-  let quoteIndex = Math.floor(Math.random() * quotes.length);
-
-  try {
-    const storageKey = `sound-of-progress-quote:${quoteKey}`;
-    const storedIndex = window.localStorage.getItem(storageKey);
-    if (storedIndex !== null) {
-      const previousIndex = Number(storedIndex);
-      if (Number.isInteger(previousIndex) && previousIndex >= 0 && previousIndex < quotes.length) {
-        quoteIndex = (previousIndex + 1) % quotes.length;
-      }
-    }
-    window.localStorage.setItem(storageKey, String(quoteIndex));
-  } catch {
-    // The page-level choice remains stable if browser storage is unavailable.
-  }
-
-  pageQuoteChoices.set(quoteKey, quoteIndex);
-  return quotes[quoteIndex];
-}
-
 function WordCloudVisual({ active }: { active: number }) {
   const requestedMode: CloudMode = active === 0 ? "positive" : active === 1 ? "negative" : "explore";
   const [mode, setMode] = useState<CloudMode>(requestedMode);
-  const [isTransitioning, setIsTransitioning] = useState(false);
   const [filter, setFilter] = useState<CloudFilter>({ sentiment: "All", category: "All", ageGroup: "All", gender: "All", sector: "All" });
   const [selectedWord, setSelectedWord] = useState<string>("good");
+  const [quoteIndex, setQuoteIndex] = useState(0);
   const { ref: cloudStageRef, aspect: cloudAspect } = useElementAspect<HTMLDivElement>();
 
   useEffect(() => {
-    if (requestedMode === mode) {
-      setIsTransitioning(false);
-      return;
-    }
-
-    setIsTransitioning(true);
-    const timer = window.setTimeout(() => {
-      setMode(requestedMode);
-      setIsTransitioning(false);
-    }, 320);
-
+    if (requestedMode === mode) return;
+    const timer = window.setTimeout(() => setMode(requestedMode), 260);
     return () => window.clearTimeout(timer);
   }, [mode, requestedMode]);
 
-  const words = useMemo(() => {
-    const records = data.wordRecords.filter((record) => {
-      const sentiment = mode === "positive" ? "Positive" : mode === "negative" ? "Negative" : filter.sentiment;
-      return (sentiment === "All" || record.sentiment === sentiment)
-        && (filter.category === "All" || record.category === filter.category)
-        && (filter.ageGroup === "All" || record.ageGroup === filter.ageGroup)
-        && (filter.gender === "All" || record.gender === filter.gender)
-        && (filter.sector === "All" || record.sector === filter.sector);
-    });
-    const grouped = new Map<string, Omit<CloudWord, "x" | "y" | "fontSize">>();
-    records.forEach((record) => {
-      const key = `${record.word}|${record.sentiment}`;
-      const existing = grouped.get(key) ?? { word: record.word, sentiment: record.sentiment, weight: 0, sessions: 0 };
-      existing.weight += record.weight;
-      existing.sessions += record.sessions;
-      grouped.set(key, existing);
-    });
-    const ranked = Array.from(grouped.values()).sort((a, b) => b.weight - a.weight);
-    return layoutWords(ranked, mode === "explore" ? 88 : 66);
-  }, [filter, mode]);
+  const cloudWords = useMemo(() => {
+    const cloudModes: CloudMode[] = ["positive", "negative", "explore"];
+    return Object.fromEntries(cloudModes.map((cloudMode) => {
+      const records = data.wordRecords.filter((record) => {
+        const sentiment = cloudMode === "positive" ? "Positive" : cloudMode === "negative" ? "Negative" : filter.sentiment;
+        return (sentiment === "All" || record.sentiment === sentiment)
+          && (filter.category === "All" || record.category === filter.category)
+          && (filter.ageGroup === "All" || record.ageGroup === filter.ageGroup)
+          && (filter.gender === "All" || record.gender === filter.gender)
+          && (filter.sector === "All" || record.sector === filter.sector);
+      });
+      const grouped = new Map<string, Omit<CloudWord, "x" | "y" | "fontSize">>();
+      records.forEach((record) => {
+        const key = `${record.word}|${record.sentiment}`;
+        const existing = grouped.get(key) ?? { word: record.word, sentiment: record.sentiment, weight: 0, sessions: 0 };
+        existing.weight += record.weight;
+        existing.sessions += record.sessions;
+        grouped.set(key, existing);
+      });
+      const ranked = Array.from(grouped.values()).sort((a, b) => b.weight - a.weight);
+      return [cloudMode, layoutWords(ranked, cloudMode === "explore" ? 88 : 66)];
+    })) as Record<CloudMode, CloudWord[]>;
+  }, [filter]);
+
+  const words = cloudWords[mode];
 
   const selected = words.find((word) => word.word === selectedWord) ?? words[0];
   const quotes = selected ? data.quotes[selected.word]?.[selected.sentiment] ?? [] : [];
-  const quotation = selected ? quotationForThisVisit(quotes, selected.word, selected.sentiment) : undefined;
-  const cloudViewBox = wordCloudViewBox(words, cloudAspect);
+  const selectedQuoteKey = selected ? `${selected.word}|${selected.sentiment}` : "";
+  const selectedQuote = quotes.length ? quotes[quoteIndex % quotes.length] : undefined;
+
+  useEffect(() => {
+    setQuoteIndex(0);
+  }, [selectedQuoteKey]);
 
   return (
     <div className={`viz-panel cloud-panel motion-panel cloud-mode-${mode}`}>
@@ -688,34 +661,59 @@ function WordCloudVisual({ active }: { active: number }) {
         <div><p className="viz-kicker">Words from young people&apos;s reflections</p><h3>{mode === "positive" ? "What progress sounds like" : mode === "negative" ? "Challenge has a place in the story" : "A fuller picture—in their own words"}</h3></div>
         <div className="sentiment-key"><span><i style={{ background: COLORS.positive }} />Positive</span><span><i style={{ background: COLORS.negative }} />Challenging</span></div>
       </div>
-      <div ref={cloudStageRef} className={`cloud-stage ${isTransitioning ? "is-changing" : ""}`}>
-        {words.length ? <svg key={mode} viewBox={cloudViewBox} role="img" aria-label={`Word cloud showing ${mode === "explore" ? "positive and challenging" : mode} themes`}>
-          {words.map((word) => (
-            <text
-              key={`${word.word}-${word.sentiment}`}
-              x={word.x}
-              y={word.y}
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fill={word.sentiment === "Positive" ? COLORS.positive : COLORS.negative}
-              fontSize={word.fontSize}
-              opacity={selected && selected.word !== word.word ? 0.77 : 1}
-              className="cloud-word"
-              tabIndex={0}
-              role="button"
-              aria-label={`${word.word}, ${word.sentiment.toLowerCase()} theme`}
-              onMouseEnter={() => setSelectedWord(word.word)}
-              onFocus={() => setSelectedWord(word.word)}
-              onClick={() => setSelectedWord(word.word)}
-            >{word.word}</text>
-          ))}
-        </svg> : <div className="cloud-empty">No words match these filters.</div>}
+      <div ref={cloudStageRef} className="cloud-stage">
+        {(["positive", "negative", "explore"] as CloudMode[]).map((cloudMode) => {
+          const layerWords = cloudWords[cloudMode];
+          const isActive = cloudMode === mode;
+          return <div key={cloudMode} className={`cloud-layer ${isActive ? "is-active" : ""}`} aria-hidden={!isActive}>
+            {layerWords.length ? <svg viewBox={wordCloudViewBox(layerWords, cloudAspect)} role={isActive ? "img" : undefined} aria-label={isActive ? `Word cloud showing ${mode === "explore" ? "positive and challenging" : mode} themes` : undefined}>
+              {layerWords.map((word, index) => (
+                <text
+                  key={`${cloudMode}-${word.word}-${word.sentiment}`}
+                  x={word.x}
+                  y={word.y}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill={word.sentiment === "Positive" ? COLORS.positive : COLORS.negative}
+                  fontSize={word.fontSize}
+                  className="cloud-word"
+                  style={{ "--word-index": Math.min(index, 38), "--word-opacity": isActive && selected && selected.word !== word.word ? 0.77 : 1 } as React.CSSProperties}
+                  tabIndex={isActive ? 0 : -1}
+                  role={isActive ? "button" : undefined}
+                  aria-label={isActive ? `${word.word}, ${word.sentiment.toLowerCase()} theme` : undefined}
+                  onMouseEnter={isActive ? () => setSelectedWord(word.word) : undefined}
+                  onFocus={isActive ? () => setSelectedWord(word.word) : undefined}
+                  onClick={isActive ? () => setSelectedWord(word.word) : undefined}
+                >{word.word}</text>
+              ))}
+            </svg> : <div className="cloud-empty">No words match these filters.</div>}
+          </div>;
+        })}
       </div>
       <div className="voice-panel">
         <div><Quote size={19} /><span>In their words</span><strong>{selected?.word ?? "—"}</strong></div>
         <blockquote>
-          <span>{quotation ? `“${quotation}”` : "Hover or focus on a word to see an anonymized reflection excerpt."}</span>
-          {quotes.length > 1 && <small style={{ display: "block", marginTop: ".35rem", color: "#7890a1", fontSize: ".68rem", fontStyle: "normal" }}>Refresh to hear another voice linked to this word.</small>}
+          <span style={{ display: "block" }}>{selectedQuote ? `“${selectedQuote}”` : "Hover or focus on a word to see an anonymized reflection excerpt."}</span>
+          {quotes.length > 1 && <button
+            type="button"
+            aria-label={`Show another quotation associated with ${selected?.word ?? "this word"}`}
+            onClick={() => setQuoteIndex((current) => (current + 1) % quotes.length)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.32rem",
+              marginTop: "0.45rem",
+              padding: 0,
+              border: 0,
+              background: "transparent",
+              color: "#8fa6b6",
+              font: "inherit",
+              fontSize: "0.72rem",
+              fontStyle: "normal",
+              letterSpacing: "0.06em",
+              cursor: "pointer",
+            }}
+          >Another voice <span aria-hidden="true">↻</span></button>}
         </blockquote>
       </div>
       {mode === "explore" && <div className="cloud-controls" aria-label="Word cloud filters">
