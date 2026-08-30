@@ -681,7 +681,6 @@ function WordCloudVisual({ active }: { active: number }) {
                   tabIndex={isActive ? 0 : -1}
                   role={isActive ? "button" : undefined}
                   aria-label={isActive ? `${word.word}, ${word.sentiment.toLowerCase()} theme` : undefined}
-                  onMouseEnter={isActive ? () => setSelectedWord(word.word) : undefined}
                   onFocus={isActive ? () => setSelectedWord(word.word) : undefined}
                   onClick={isActive ? () => setSelectedWord(word.word) : undefined}
                 >{word.word}</text>
@@ -691,7 +690,10 @@ function WordCloudVisual({ active }: { active: number }) {
         })}
       </div>
       <div className="voice-panel">
-        <div><Quote size={19} /><span>In their words</span><strong>{selected?.word ?? "—"}</strong></div>
+        <div>
+          <Quote size={19} /><span>In their words</span><strong>{selected?.word ?? "—"}</strong>
+          <small style={{ gridColumn: "1 / -1", marginTop: "0.3rem", color: "#8fa6b6", fontSize: "0.64rem", letterSpacing: "0.03em", textTransform: "none" }}>Hover to highlight · Click a word to select</small>
+        </div>
         <blockquote>
           <span style={{ display: "block" }}>{selectedQuote ? `“${selectedQuote}”` : "Hover or focus on a word to see an anonymized reflection excerpt."}</span>
           {quotes.length > 1 && <button
