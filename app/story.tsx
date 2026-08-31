@@ -102,10 +102,7 @@ function densityVars(palette: DensityPalette, index: number) {
   } as React.CSSProperties;
 }
 
-const APPROVED_GREEN_NEON = {
-  outer: "#5c9f00",
-  inner: "#efffc9",
-  crisp: "#b8ff00",
+const APPROVED_DISTRIBUTION_NEON = {
   outerBlur: 5.9,
   innerBlur: 1.0,
   crispStroke: 4.8,
@@ -114,29 +111,76 @@ const APPROVED_GREEN_NEON = {
   linePitch: 7.3,
 };
 
-function ApprovedGreenNeonMark({ id, index }: { id: string; index: number }) {
+const APPROVED_DISTRIBUTION_PALETTE: Record<ScoreKey, { outer: string; inner: string; crisp: string }> = {
+  autonomy: { outer: "#5c9f00", inner: "#efffc9", crisp: "#c7fd14" },
+  competence: { outer: "#087f99", inner: "#dcfaff", crisp: "#35d9ff" },
+  relatedness: { outer: "#5c3ba3", inner: "#efe7ff", crisp: "#9f73fc" },
+};
+
+const APPROVED_RED_NEON = {
+  outer: "#7b2730",
+  inner: "#ffe1e3",
+  crisp: "#e15759",
+  outerBlur: 4.4,
+  innerBlur: 4.0,
+  crispStroke: 4.6,
+  outerStrength: 5.7,
+  innerStrength: 1.9,
+  linePitch: 16.0,
+};
+
+function ApprovedDistributionNeonMark({ id, index, dimension }: { id: string; index: number; dimension: ScoreKey }) {
   const outerId = `${id}-outer`;
   const innerId = `${id}-inner`;
+  const palette = APPROVED_DISTRIBUTION_PALETTE[dimension];
   return (
     <i className="approved-neon-mark" style={{ "--mark-index": index } as React.CSSProperties}>
       <svg viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
         <defs>
           <filter id={outerId} filterUnits="userSpaceOnUse" x="-20" y="-20" width="140" height="72" colorInterpolationFilters="sRGB">
-            <feGaussianBlur stdDeviation={APPROVED_GREEN_NEON.outerBlur} result="blur" />
+            <feGaussianBlur stdDeviation={APPROVED_DISTRIBUTION_NEON.outerBlur} result="blur" />
             <feComponentTransfer in="blur" result="boostedOuter">
-              <feFuncA type="linear" slope={APPROVED_GREEN_NEON.outerStrength} />
+              <feFuncA type="linear" slope={APPROVED_DISTRIBUTION_NEON.outerStrength} />
             </feComponentTransfer>
           </filter>
           <filter id={innerId} filterUnits="userSpaceOnUse" x="-20" y="-20" width="140" height="72" colorInterpolationFilters="sRGB">
-            <feGaussianBlur stdDeviation={APPROVED_GREEN_NEON.innerBlur} result="blur" />
+            <feGaussianBlur stdDeviation={APPROVED_DISTRIBUTION_NEON.innerBlur} result="blur" />
             <feComponentTransfer in="blur" result="boostedInner">
-              <feFuncA type="linear" slope={APPROVED_GREEN_NEON.innerStrength} />
+              <feFuncA type="linear" slope={APPROVED_DISTRIBUTION_NEON.innerStrength} />
             </feComponentTransfer>
           </filter>
         </defs>
-        <line x1="8" y1="16" x2="92" y2="16" stroke={APPROVED_GREEN_NEON.outer} strokeWidth={APPROVED_GREEN_NEON.crispStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" filter={`url(#${outerId})`} opacity=".95" />
-        <line x1="8" y1="16" x2="92" y2="16" stroke={APPROVED_GREEN_NEON.inner} strokeWidth={APPROVED_GREEN_NEON.crispStroke * 0.48} strokeLinecap="round" vectorEffect="non-scaling-stroke" filter={`url(#${innerId})`} opacity=".82" />
-        <line x1="8" y1="16" x2="92" y2="16" stroke={APPROVED_GREEN_NEON.crisp} strokeWidth={APPROVED_GREEN_NEON.crispStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <line x1="8" y1="16" x2="92" y2="16" stroke={palette.outer} strokeWidth={APPROVED_DISTRIBUTION_NEON.crispStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" filter={`url(#${outerId})`} opacity=".95" />
+        <line x1="8" y1="16" x2="92" y2="16" stroke={palette.inner} strokeWidth={APPROVED_DISTRIBUTION_NEON.crispStroke * 0.48} strokeLinecap="round" vectorEffect="non-scaling-stroke" filter={`url(#${innerId})`} opacity=".82" />
+        <line x1="8" y1="16" x2="92" y2="16" stroke={palette.crisp} strokeWidth={APPROVED_DISTRIBUTION_NEON.crispStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+      </svg>
+    </i>
+  );
+}
+
+function ApprovedRedNeonMark({ id, index }: { id: string; index: number }) {
+  const outerId = `${id}-outer`;
+  const innerId = `${id}-inner`;
+  return (
+    <i className="approved-red-neon-mark" style={{ "--mark-index": index } as React.CSSProperties}>
+      <svg viewBox="0 0 100 32" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <filter id={outerId} filterUnits="userSpaceOnUse" x="-24" y="-24" width="148" height="80" colorInterpolationFilters="sRGB">
+            <feGaussianBlur stdDeviation={APPROVED_RED_NEON.outerBlur} result="blur" />
+            <feComponentTransfer in="blur" result="boostedOuter">
+              <feFuncA type="linear" slope={APPROVED_RED_NEON.outerStrength} />
+            </feComponentTransfer>
+          </filter>
+          <filter id={innerId} filterUnits="userSpaceOnUse" x="-24" y="-24" width="148" height="80" colorInterpolationFilters="sRGB">
+            <feGaussianBlur stdDeviation={APPROVED_RED_NEON.innerBlur} result="blur" />
+            <feComponentTransfer in="blur" result="boostedInner">
+              <feFuncA type="linear" slope={APPROVED_RED_NEON.innerStrength} />
+            </feComponentTransfer>
+          </filter>
+        </defs>
+        <line x1="8" y1="16" x2="92" y2="16" stroke={APPROVED_RED_NEON.outer} strokeWidth={APPROVED_RED_NEON.crispStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" filter={`url(#${outerId})`} opacity=".95" />
+        <line x1="8" y1="16" x2="92" y2="16" stroke={APPROVED_RED_NEON.inner} strokeWidth={APPROVED_RED_NEON.crispStroke * 0.48} strokeLinecap="round" vectorEffect="non-scaling-stroke" filter={`url(#${innerId})`} opacity=".82" />
+        <line x1="8" y1="16" x2="92" y2="16" stroke={APPROVED_RED_NEON.crisp} strokeWidth={APPROVED_RED_NEON.crispStroke} strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       </svg>
     </i>
   );
@@ -378,10 +422,10 @@ function DistributionVisual() {
                 <div
                   className="bar-stack approved-neon-stack"
                   aria-hidden="true"
-                  style={{ "--approved-neon-pitch": `${APPROVED_GREEN_NEON.linePitch}px` } as React.CSSProperties}
+                  style={{ "--approved-neon-pitch": `${APPROVED_DISTRIBUTION_NEON.linePitch}px` } as React.CSSProperties}
                 >
                   {Array.from({ length: count }, (_, index) => (
-                    <ApprovedGreenNeonMark key={index} id={`${neonInstanceId}-${dimension.key}-${bin}-${index}`} index={index} />
+                    <ApprovedDistributionNeonMark key={index} id={`${neonInstanceId}-${dimension.key}-${bin}-${index}`} index={index} dimension={dimension.key} />
                   ))}
                 </div>
                 {count > 0 && <span className="bar-count" aria-hidden="true">{count}</span>}
@@ -391,7 +435,10 @@ function DistributionVisual() {
         ))}
       </div>
       <div className="dimension-key">
-        {dimensions.map((item) => <span key={item.key}><i style={{ background: APPROVED_GREEN_NEON.crisp, boxShadow: `0 0 6px ${APPROVED_GREEN_NEON.outer}` }} />{item.label}</span>)}
+        {dimensions.map((item) => {
+          const palette = APPROVED_DISTRIBUTION_PALETTE[item.key];
+          return <span key={item.key}><i style={{ background: palette.crisp, boxShadow: `0 0 6px ${palette.outer}` }} />{item.label}</span>;
+        })}
       </div>
       <p className="viz-note">1 capsule = 1 participant. Most participant averages sit between 5 and 7 on the 1–9 scale. Competence is strongest overall; relatedness varies most.</p>
     </div>
@@ -400,6 +447,7 @@ function DistributionVisual() {
 
 function RatingVisual() {
   const bins = [7, 8, 9, 10];
+  const redNeonInstanceId = useId().replace(/:/g, "");
   const { ref, isVisible } = useInViewReplay<HTMLDivElement>();
   return (
     <div ref={ref} className={`viz-panel rating-panel motion-panel sound-bars ${isVisible ? "is-playing" : ""}`} key="ratings">
@@ -409,15 +457,23 @@ function RatingVisual() {
       </div>
       <div className="rating-summary"><strong>10</strong><span>is the most common rounded participant average</span></div>
       <div className="rating-chart" role="img" aria-label="Distribution of participant overall session ratings">
-        {bins.map((bin) => (
-          <div className="rating-column" key={bin}>
-            <div className="rating-marks">
-              {Array.from({ length: data.ratingDistribution[String(bin)] }, (_, index) => <i key={index} style={densityVars(DENSITY.redDark, index)} />)}
+        {bins.map((bin) => {
+          const count = data.ratingDistribution[String(bin)];
+          return (
+            <div className="rating-column" key={bin}>
+              <div
+                className="rating-marks approved-red-neon-stack"
+                style={{ "--approved-red-neon-pitch": `${APPROVED_RED_NEON.linePitch}px` } as React.CSSProperties}
+              >
+                {Array.from({ length: count }, (_, index) => (
+                  <ApprovedRedNeonMark key={index} id={`${redNeonInstanceId}-${bin}-${index}`} index={index} />
+                ))}
+              </div>
+              <span className="rating-count">{count} participant{count === 1 ? "" : "s"}</span>
+              <strong>{bin}</strong>
             </div>
-            <strong>{bin}</strong>
-            <span className="rating-count">{data.ratingDistribution[String(bin)]} participants</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
       <p className="viz-note">Overall ratings were available for 30 of the 35 participants. Their rounded averages range from 7 to 10, with 10 the most common.</p>
     </div>

@@ -485,6 +485,43 @@ button { color: inherit; }
   pointer-events: none;
 }
 
+/* Approved Noise Solution red neon treatment for the overall-rating chart only.
+   Exact real-size test settings: outer blur 4.4, inner blur 4.0, crisp stroke 4.6,
+   outer strength 5.7, inner strength 1.9, line pitch 16.0. */
+.rating-marks.approved-red-neon-stack {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0;
+  justify-content: flex-start;
+  overflow: visible;
+}
+.rating-marks i.approved-red-neon-mark {
+  position: relative;
+  height: var(--approved-red-neon-pitch);
+  flex: 0 0 var(--approved-red-neon-pitch);
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  isolation: auto;
+}
+.rating-marks i.approved-red-neon-mark::before,
+.rating-marks i.approved-red-neon-mark::after {
+  content: none;
+  display: none;
+}
+.approved-red-neon-mark > svg {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 32px;
+  overflow: visible;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
 @keyframes sound-rise {
   0% { opacity: 0; transform: translateY(9px) scaleX(.94) scaleY(.12); filter: brightness(.48) saturate(.9); }
   68% { opacity: .94; transform: translateY(-1px) scaleX(1) scaleY(1.12); filter: brightness(1.06) saturate(1.06); }
@@ -537,7 +574,7 @@ button { color: inherit; }
 .bar-count {
   align-self: center;
   width: 100%;
-  margin-top: 3px;
+  margin-top: 6px;
   color: #91a6b5;
   font-size: .805rem;
   font-weight: 500;
@@ -555,14 +592,14 @@ button { color: inherit; }
 .rating-chart { flex: 1; min-height: 300px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; align-items: end; padding: 1.5rem 1rem 0; }
 .rating-column { display: flex; flex-direction: column; align-items: center; }
 .rating-marks { width: 100%; height: 280px; display: flex; flex-direction: column-reverse; gap: 5px; }
-.rating-column > strong { margin-top: .8rem; color: #f2efeb; font-size: 1rem; }
 .rating-count {
-  margin-top: .2rem;
-  color: #91a6b5;
-  font-size: .805rem;
+  margin-top: .55rem;
+  color: #b5c1c8;
+  font-size: .9rem;
   font-weight: 500;
-  line-height: 1.15;
+  line-height: 1.12;
 }
+.rating-column > strong { margin-top: .15rem; color: #f2efeb; font-size: 1rem; }
 
 .circle-teach { display: grid; grid-template-columns: minmax(270px, .9fr) minmax(260px, .8fr); gap: clamp(1.5rem, 4vw, 4rem); align-items: center; }
 .circle-teach-visual { display: grid; place-items: center; }
@@ -793,8 +830,11 @@ a.partner-card:hover, a.partner-card:focus-visible { background: #11160f; outlin
   .bar-stack i { height: 4px; flex-basis: 4px; }
   .bar-stack i.approved-neon-mark { height: 4px; flex-basis: 4px; }
   .approved-neon-mark > svg { height: 17.5px; }
-  .bar-count { margin-top: 2px; font-size: .713rem; }
+  .bar-count { margin-top: 4px; font-size: .713rem; }
   .rating-marks { height: 150px; gap: 3px; }
+  .rating-marks.approved-red-neon-stack { gap: 0; }
+  .rating-marks i.approved-red-neon-mark { height: 8px; flex-basis: 8px; }
+  .approved-red-neon-mark > svg { height: 17.5px; }
   .rating-count { font-size: .713rem; }
   .profile-grid { grid-template-columns: repeat(7, 1fr); }
   .circle-teach { grid-template-columns: .8fr 1fr; }
