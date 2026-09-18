@@ -785,8 +785,7 @@ function WordCloudVisual({ active }: { active: number }) {
 
   const quotationLookup = useMemo(() => {
     const eligible = cloudData.feedback.filter((record) =>
-      (filter.sentiment === "All" || record.sentiment === filter.sentiment)
-      && (filter.category === "All" || record.category === filter.category)
+      (filter.category === "All" || record.category === filter.category)
       && (filter.ageGroup === "All" || record.ageGroup === filter.ageGroup)
       && (filter.gender === "All" || record.gender === filter.gender)
       && (filter.sector === "All" || record.sector === filter.sector)
@@ -794,7 +793,8 @@ function WordCloudVisual({ active }: { active: number }) {
     const lookup = new Map<string, string[]>();
     words.forEach((word) => {
       const matches = Array.from(new Set(eligible
-        .filter((record) => record.text.toLowerCase().includes(word.word.toLowerCase()))
+        .filter((record) => record.sentiment === word.sentiment
+          && record.text.toLowerCase().includes(word.word.toLowerCase()))
         .map((record) => record.text)));
       const start = Math.floor(voiceSeed * matches.length);
       lookup.set(`${word.word}|${word.sentiment}`, [...matches.slice(start), ...matches.slice(0, start)]);
@@ -821,7 +821,7 @@ function WordCloudVisual({ active }: { active: number }) {
 
   useEffect(() => {
     setHoveredWordKey(null);
-  }, [mode]);
+  }, [mode, filter]);
 
   return (
     <div className={`viz-panel cloud-panel motion-panel cloud-mode-${mode}`}>
