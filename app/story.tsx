@@ -809,11 +809,15 @@ function WordCloudVisual({ active }: { active: number }) {
   const displayedQuotes = displayedWord ? quotationLookup.get(`${displayedWord.word}|${displayedWord.sentiment}`) ?? [] : [];
   const selectedQuoteKey = selected ? `${selected.word}|${selected.sentiment}` : "";
   const isHoverPreview = Boolean(hovered && `${hovered.word}|${hovered.sentiment}` !== selectedQuoteKey);
-  const displayedQuote = displayedQuotes.length ? displayedQuotes[isHoverPreview ? 0 : quoteIndex % displayedQuotes.length] : undefined;
+  const reflectionStart = isHoverPreview ? 0 : quoteIndex;
+  const displayedReflections = Array.from(
+    { length: Math.min(3, displayedQuotes.length) },
+    (_, offset) => displayedQuotes[(reflectionStart + offset) % displayedQuotes.length]
+  );
 
   useEffect(() => {
     setQuoteIndex(0);
-  }, [selectedQuoteKey]);
+  }, [selectedQuoteKey, filter]);
 
   useEffect(() => {
     setHoveredWordKey(null);
@@ -858,16 +862,20 @@ function WordCloudVisual({ active }: { active: number }) {
       <div className="voice-panel">
         <div>
           <Quote size={19} /><span>In their words</span><strong>{displayedWord?.word ?? "—"}</strong>
-          <small style={{ gridColumn: "1 / -1", marginTop: "0.3rem", color: "#c4d1da", fontSize: "0.64rem", letterSpacing: "0.03em", textTransform: "none" }}>Hover to preview · Click a word to lock</small>
+          <small style={{ gridColumn: "1 / -1", marginTop: "0.3rem", color: "#c4d1da", fontSize: "0.64rem", letterSpacing: "0.03em", textTransform: "none" }}>Hover to preview reflections. Click a word to lock it, then select “Refresh reflections” to see more.</small>
         </div>
         <blockquote>
-          <span style={{ display: "block" }}>{displayedQuote ? `“${displayedQuote}”` : "Hover or focus on a word to see an anonymized reflection excerpt."}</span>
-          {quotes.length > 1 && <button
+          <div style={{ maxHeight: "6em", overflowY: "auto" }}>
+            {displayedReflections.length ? displayedReflections.map((reflection, index) => (
+              <span key={reflection} style={{ display: "block", marginTop: index ? "0.4rem" : 0 }}>{`“${reflection}”`}</span>
+            )) : <span style={{ display: "block" }}>Hover or focus on a word to see an anonymized reflection excerpt.</span>}
+          </div>
+          {displayedQuotes.length > 3 && <button
             type="button"
             disabled={isHoverPreview}
-            aria-hidden={isHoverPreview}
-            aria-label={`Show another quotation associated with ${selected?.word ?? "this word"}`}
-            onClick={() => setQuoteIndex((current) => (current + 1) % quotes.length)}
+            title={isHoverPreview ? "Click the word to lock it before refreshing reflections." : undefined}
+            aria-label={`Refresh reflections associated with ${displayedWord?.word ?? "this word"}`}
+            onClick={() => setQuoteIndex((current) => (current + 3) % quotes.length)}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -881,10 +889,10 @@ function WordCloudVisual({ active }: { active: number }) {
               fontSize: "0.72rem",
               fontStyle: "normal",
               letterSpacing: "0.06em",
-              cursor: "pointer",
-              visibility: isHoverPreview ? "hidden" : "visible",
+              cursor: isHoverPreview ? "default" : "pointer",
+              opacity: isHoverPreview ? 0.6 : 1,
             }}
-          >Another voice <span aria-hidden="true">↻</span></button>}
+          >Refresh reflections <span aria-hidden="true">↻</span></button>}
         </blockquote>
       </div>
       {mode === "explore" && <div className="cloud-controls" aria-label="Word cloud filters">
