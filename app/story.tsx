@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/tooltip";
 
 import rawData from "./data/noise-data.json";
+import rawCloudData from "./data/word-cloud-data.json";
 
 type ScoreKey = "autonomy" | "competence" | "relatedness";
 type Sentiment = "Positive" | "Negative";
@@ -65,6 +66,10 @@ type StoryData = {
 };
 
 const data = rawData as unknown as StoryData;
+const cloudData = rawCloudData as {
+  wordRecords: WordRecord[];
+  feedback: Array<Pick<WordRecord, "sentiment" | "category" | "ageGroup" | "gender" | "sector"> & { text: string }>;
+};
 
 const COLORS = {
   // Approved web circle palette, tuned to the Noise Solution theme.
@@ -751,7 +756,7 @@ function WordCloudVisual({ active }: { active: number }) {
   const cloudWords = useMemo(() => {
     const cloudModes: CloudMode[] = ["positive", "negative", "explore"];
     return Object.fromEntries(cloudModes.map((cloudMode) => {
-      const records = data.wordRecords.filter((record) => {
+      const records = cloudData.wordRecords.filter((record) => {
         const sentiment = cloudMode === "positive" ? "Positive" : cloudMode === "negative" ? "Negative" : filter.sentiment;
         return (sentiment === "All" || record.sentiment === sentiment)
           && (filter.category === "All" || record.category === filter.category)
@@ -774,11 +779,34 @@ function WordCloudVisual({ active }: { active: number }) {
 
   const words = cloudWords[mode];
 
+  // A client-side seed chooses a random starting voice without changing it on every render.
+  const [voiceSeed, setVoiceSeed] = useState(0);
+  useEffect(() => { setVoiceSeed(Math.random()); }, []);
+
+  const quotationLookup = useMemo(() => {
+    const eligible = cloudData.feedback.filter((record) =>
+      (filter.category === "All" || record.category === filter.category)
+      && (filter.ageGroup === "All" || record.ageGroup === filter.ageGroup)
+      && (filter.gender === "All" || record.gender === filter.gender)
+      && (filter.sector === "All" || record.sector === filter.sector)
+    );
+    const lookup = new Map<string, string[]>();
+    words.forEach((word) => {
+      const matches = Array.from(new Set(eligible
+        .filter((record) => record.sentiment === word.sentiment
+          && record.text.toLowerCase().includes(word.word.toLowerCase()))
+        .map((record) => record.text)));
+      const start = Math.floor(voiceSeed * matches.length);
+      lookup.set(`${word.word}|${word.sentiment}`, [...matches.slice(start), ...matches.slice(0, start)]);
+    });
+    return lookup;
+  }, [words, filter, voiceSeed]);
+
   const selected = words.find((word) => `${word.word}|${word.sentiment}` === selectedWordKey) ?? words[0];
   const hovered = hoveredWordKey ? words.find((word) => `${word.word}|${word.sentiment}` === hoveredWordKey) : undefined;
   const displayedWord = hovered ?? selected;
-  const quotes = selected ? data.quotes[selected.word]?.[selected.sentiment] ?? [] : [];
-  const displayedQuotes = displayedWord ? data.quotes[displayedWord.word]?.[displayedWord.sentiment] ?? [] : [];
+  const quotes = selected ? quotationLookup.get(`${selected.word}|${selected.sentiment}`) ?? [] : [];
+  const displayedQuotes = displayedWord ? quotationLookup.get(`${displayedWord.word}|${displayedWord.sentiment}`) ?? [] : [];
   const selectedQuoteKey = selected ? `${selected.word}|${selected.sentiment}` : "";
   const isHoverPreview = Boolean(hovered && `${hovered.word}|${hovered.sentiment}` !== selectedQuoteKey);
   const displayedQuote = displayedQuotes.length ? displayedQuotes[isHoverPreview ? 0 : quoteIndex % displayedQuotes.length] : undefined;
@@ -971,7 +999,7 @@ export default function Story() {
     {
       kicker: "Young people’s own view",
       title: "Their own ratings reinforce the positive picture.",
-      body: <><p>For 30 participants, a separate overall rating captures their own view of the experience.</p><p>Those ratings are strikingly positive: rounded participant averages range from 7 to 10, and 10 is by far the most common.</p></>,
+      body: <><p>For 30 of the 35 participants, a separate overall rating captures their own view of the experience; ratings were not available for the other five.</p><p>Those ratings are strikingly positive: rounded participant averages range from 7 to 10, and 10 is by far the most common.</p></>,
     },
   ];
 
