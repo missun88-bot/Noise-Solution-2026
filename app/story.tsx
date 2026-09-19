@@ -67,7 +67,7 @@ type StoryData = {
 
 const data = rawData as unknown as StoryData;
 const cloudData = rawCloudData as {
-  wordRecords: WordRecord[];
+  wordRecords: Array<WordRecord & { feedbackIds: number[] }>;
   feedback: Array<Pick<WordRecord, "sentiment" | "category" | "ageGroup" | "gender" | "sector"> & { text: string }>;
 };
 
@@ -784,7 +784,7 @@ function WordCloudVisual({ active }: { active: number }) {
   useEffect(() => { setVoiceSeed(Math.random()); }, []);
 
   const quotationLookup = useMemo(() => {
-    const eligible = cloudData.feedback.filter((record) =>
+    const eligible = cloudData.wordRecords.filter((record) =>
       (filter.category === "All" || record.category === filter.category)
       && (filter.ageGroup === "All" || record.ageGroup === filter.ageGroup)
       && (filter.gender === "All" || record.gender === filter.gender)
@@ -792,10 +792,10 @@ function WordCloudVisual({ active }: { active: number }) {
     );
     const lookup = new Map<string, string[]>();
     words.forEach((word) => {
-      const matches = Array.from(new Set(eligible
-        .filter((record) => record.sentiment === word.sentiment
-          && record.text.toLowerCase().includes(word.word.toLowerCase()))
-        .map((record) => record.text)));
+      const ids = new Set(eligible
+        .filter((record) => record.word === word.word && record.sentiment === word.sentiment)
+        .flatMap((record) => record.feedbackIds));
+      const matches = Array.from(new Set(Array.from(ids, (id) => cloudData.feedback[id].text)));
       const start = Math.floor(voiceSeed * matches.length);
       lookup.set(`${word.word}|${word.sentiment}`, [...matches.slice(start), ...matches.slice(0, start)]);
     });
